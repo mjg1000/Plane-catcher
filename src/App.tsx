@@ -1,31 +1,30 @@
 import { useState, useEffect, useRef } from "react"
-import { initialPlanes } from "./data/planes"
-import type { Plane } from "./types/Plane"
 import MapView from "./components/MapView"
 import TopNav from "./components/TopNav"
 import BottomNav from "./components/BottomNav"
 import { centerCircleButton } from "./styles/navStyles"
+import { Plane, GATWICK } from "./types/Plane";
+import { initialPlanes } from "./data/planes";
+//import {getTail} from "./utils/tailAi"
 
 export default function App() {
   const [planes, setPlanes] = useState<Plane[]>(initialPlanes)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [photo] = useState<string | null>(null)
 
-  // Update planes every 3 seconds
+  // Update planes
+
   useEffect(() => {
     const interval = setInterval(() => {
+      const now = Date.now();
       setPlanes(prev =>
-        prev.map(p => ({
-          ...p,
-          lat: p.lat + (Math.random() - 0.5) * 0.5,
-          lng: p.lng + (Math.random() - 0.5) * 0.5
-        }))
-      )
-    }, 3000)
+        prev.filter(p => p.updatePosition(now, GATWICK.lat, GATWICK.lng))
+      );
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
+
 
   // Request webcam access
   useEffect(() => {
@@ -40,6 +39,7 @@ export default function App() {
     startCamera()
   }, [])
 
+
   // Take a snapshot UNTESTED MEED WEBCAM
   function handleCameraClick() {
     if (!videoRef.current || !canvasRef.current) return
@@ -52,7 +52,8 @@ export default function App() {
     ctx.drawImage(video, 0, 0)
     const imageData = canvas.toDataURL("image/png")
     console.log("Snapshot taken!")
-    return imageData
+    //const tail = getTail(imageData)
+    //data fetchAircraftInfo(tail)
   }
 
   return (
@@ -77,22 +78,6 @@ export default function App() {
       <button style={centerCircleButton} onClick={handleCameraClick}>
         📸
       </button>
-
-      {/* Display captured photo */}
-      {photo && (
-        <img
-          src={photo}
-          alt="Snapshot"
-          style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            width: "200px",
-            border: "2px solid white",
-            borderRadius: "8px",
-          }}
-        />
-      )}
 
       <BottomNav />
     </div>
