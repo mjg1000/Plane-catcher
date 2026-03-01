@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { topQuestIconStyle } from "../styles/navStyles";
+// Import the image
+import questImg from "../data/quest.jpg"; // adjust the path if different
 
 export default function TopNav() {
   const [open, setOpen] = useState(false);
@@ -19,19 +21,30 @@ export default function TopNav() {
         <div
           style={{
             position: "absolute",
-            top: 40, // slightly below the icon
+            top: 40,
             right: 0,
             background: "white",
-            borderRadius: 8,
+            borderRadius: 12,
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            padding: 10,
-            minWidth: 150,
+            padding: 20,
+            minWidth: 250,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             zIndex: 1000,
           }}
         >
-          <div style={{ padding: "5px 10px", cursor: "pointer" }}>Daily Quest</div>
-          <div style={{ padding: "5px 10px", cursor: "pointer" }}>Active Missions</div>
-          <div style={{ padding: "5px 10px", cursor: "pointer" }}>Completed</div>
+          {/* Large image */}
+          <img
+            src={questImg}
+            alt="Daily Quest"
+            style={{
+              height: "400px", // make it much bigger
+              width: "auto",
+              cursor: "pointer",
+              borderRadius: 8,
+            }}
+          />
         </div>
       )}
     </div>
