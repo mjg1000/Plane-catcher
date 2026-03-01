@@ -73,6 +73,9 @@ export default function App() {
 
       const result = await response.json();
       console.log("Server response:", result);
+      if (result["status"] != "Failure") {
+        console.log(result["reward"])
+      }
     } catch (err) {
       console.error("Error sending image to server:", err);
     }

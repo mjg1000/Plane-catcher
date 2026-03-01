@@ -20,41 +20,64 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+# ... imports
+
+@app.route('/init-db', methods=['POST'])
+def initialize():
+    """Initializes the database with dummy data if it doesn't exist."""
+    conn = get_db()
+    cur = conn.cursor()
+    # Use your existing logic from Database.py
+    UserDataBse.MakeDB(cur)
+    GatwickPlanesDataBse.MakeDB(cur)
+    InventoryDataBse.MakeDB(cur)
+    UserDataBse.MakeDumbyData(cur)
+    GatwickPlanesDataBse.MakeDumbyData(cur, 50)
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "Database Initialized"})
+
+@app.route('/planes', methods=['GET'])
+def get_planes():
+    """Query the database for all planes."""
+    conn = get_db()
+    cur = conn.cursor()
+    planes = cur.execute("SELECT * FROM Planes").fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in planes])
+
 @app.route('/tail', methods=['POST'])
 def get_tail():
     data = request.get_json()
     if not data or 'image' not in data:
         return jsonify({"error": "No image data provided"}), 400
 
-    # Decode image
     image_b64 = data['image'].split(',')[1]
-    image_bytes = base64.b64decode(image_b64)
+    image_bytes = base64.decodebytes(image_b64.encode()) # Cleaner decoding
     
-    # Identify plane via Gemini
     res = component.request_gemini(image_bytes, "PNG", "photo_taken")
+
     if res[1] == -1:
         return jsonify({"status": "Failure", "message": res[0]})
     
-    tail_num = str(res[0]) # Gemini identified tail
-    current_user_id = 1    # Testing ID
+    tail_num = str(res[0]) 
+    current_user_id = 1    
 
     conn = get_db()
     cur = conn.cursor()
     
     try:
-        # 1. Fetch plane details
+        # Use parameterized query to handle string tail numbers safely
         plane_data = cur.execute("SELECT * FROM Planes WHERE PlaneID = ?", (tail_num,)).fetchone()
+
         if not plane_data:
-            return jsonify({"status": "error", "message": f"Plane {tail_num} not in database"}), 404
+            return jsonify({"status": "Failure", "message": f"Plane {tail_num} not found in airspace"})
 
-        # 2. Add to inventory
+        # Logic helpers now take raw cursor to stay in one transaction
         add_plane_to_inventory(current_user_id, tail_num, cur)
-
-        # 3. Check and update quests
         quest_reward = update_quests(current_user_id, tail_num, cur)
-        
+
         conn.commit()
-        
         return jsonify({
             "status": "success",
             "tail_no": tail_num,
@@ -63,33 +86,63 @@ def get_tail():
         })
     except Exception as e:
         conn.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
 
 def add_plane_to_inventory(user_id, tail_no, cur):  
-    # Check if exists
+    # Fix: Corrected query syntax
     existing = cur.execute("SELECT * FROM Inventory WHERE UID = ? AND PlaneID = ?", (user_id, tail_no)).fetchone()
-    
     if not existing:
-        # Insert new inventory item (setting initial count/status to 0)
         cur.execute("INSERT INTO Inventory (UID, PlaneID, Count) VALUES (?, ?, ?)", (user_id, tail_no, 1))
 
 def update_quests(user_id, tail_no, cur):
-    """Checks if the plane completes a quest. Updates points and deletes quest if so."""
-    # Look for a quest matching this user and this plane
+    # Fix: Query the Quest table, not 'Quests'
     quest = cur.execute("SELECT * FROM Quest WHERE UserID = ? AND PlaneID = ?", (user_id, tail_no)).fetchone()
-    
     if quest:
         reward = quest['Reward']
-        
-        # 1. Update user's total points (assuming column name 'Points' in Users table)
         cur.execute("UPDATE Users SET Points = Points + ? WHERE UserID = ?", (reward, user_id))
-        
-        # 2. Delete the completed quest
         cur.execute("DELETE FROM Quest WHERE UserID = ? AND PlaneID = ?", (user_id, tail_no))
-        
         return reward
     return 0
 
+# ... rest of file
+
 # ... keep other routes like /planes and /plane/<tail_no> ...
+ 
+def add_plane_to_inventory(user_id, tail_no, cur):  
+    cur.execute(f'select * from Inventory where UID = {user_id} AND PlaneID = {tail_no}')
+
+    # 4. See the outputs (Fetch all rows)
+    rows = cur.fetchall()
+    if len(rows) == 0: # not already added this plane
+        query = f"INSERT INTO Inventory({user_id}, {tail_no}, 0)"
+        cur.execute(query)
+
+def update_quests(json_plane, json_quests): # also incremenents point totals.
+    pass
+
+@app.route('/plane/<tail_no>', methods=['GET'])
+def get_plane(tail_no):
+    """Query the database for a specific plane."""
+    
+    # Remove the request.args.get line entirely.
+    # Use the tail_no from the URL path.
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    # Use the tail_no variable directly from the function argument.
+    # Cast to int to ensure it matches the PlaneID column type.
+    query = "SELECT * FROM Planes WHERE PlaneID = ?"
+    plane_data = cur.execute(query, (int(tail_no),)).fetchone()
+    
+    conn.close()
+    
+    if plane_data:
+        return jsonify(dict(plane_data))
+    
+    return jsonify({"error": "Plane not found"}), 404
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
