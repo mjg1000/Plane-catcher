@@ -7,20 +7,42 @@ import { Plane, GATWICK } from "./types/Plane";
 import { getLivePlanes } from "./data/planes";
 import Inventory from "./data/Inventory";
 import Rewards from "./data/Rewards";
-import Internal from "./data/internalMap"; // internal map view
+import Internal from "./data/internalMap";
 
 export default function App() {
   const [planes, setPlanes] = useState<Plane[]>([]);
+  const [points, setPoints] = useState<number>(0); // Added points state
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Add "internalMap" to page type
   const [currentPage, setCurrentPage] = useState<
     "map" | "inventory" | "rewards" | "internalMap"
   >("map");
 
+  // Function to fetch points from the backend
+  const fetchUserStats = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/user/stats");
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.points)
+        setPoints(data.points);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user stats:", error);
+    }
+  };
+
+  // Initial data load
   useEffect(() => {
     getLivePlanes().then((liveData) => setPlanes(liveData));
+    fetchUserStats(); // Initial points fetch
+  }, []);
+
+  // Polling to keep points in sync
+  useEffect(() => {
+    const statsInterval = setInterval(fetchUserStats, 5000);
+    return () => clearInterval(statsInterval);
   }, []);
 
   // Update planes
@@ -73,8 +95,11 @@ export default function App() {
 
       const result = await response.json();
       console.log("Server response:", result);
-      if (result["status"] != "Failure") {
-        console.log(result["reward"])
+      
+      // If identification succeeded, refresh points immediately
+      if (result["status"] !== "Failure") {
+        console.log("Reward earned:", result["reward"]);
+        fetchUserStats(); 
       }
     } catch (err) {
       console.error("Error sending image to server:", err);
@@ -92,7 +117,9 @@ export default function App() {
         overflow: "hidden",
       }}
     >
-      {/* Render the main content depending on current page */}
+      {/* Pass the points state to TopNav */}
+      <TopNav points={points} />
+
       {currentPage === "map" && (
         <>
           <MapView planes={planes} />
@@ -109,7 +136,6 @@ export default function App() {
       {currentPage === "inventory" && <Inventory />}
       {currentPage === "rewards" && <Rewards />}
 
-      <TopNav />
       <BottomNav setPage={setCurrentPage} currentPage={currentPage} />
     </div>
   );

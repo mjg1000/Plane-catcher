@@ -55,12 +55,13 @@ def get_tail():
     image_b64 = data['image'].split(',')[1]
     image_bytes = base64.decodebytes(image_b64.encode()) # Cleaner decoding
 
-    res = component.request_gemini(image_bytes, "PNG", "photo_taken")
+    # res = component.request_gemini(image_bytes, "PNG", "photo_taken")
 
-    if res[1] == -1:
-        return jsonify({"status": "Failure", "message": res[0]})
+    # if res[1] == -1:
+    #     return jsonify({"status": "Failure", "message": res[0]})
     
-    tail_num = str(res[0]) 
+    # tail_num = str(res[0])
+    tail_num = "EJU8514" 
     current_user_id = 1    
 
     conn = get_db()
@@ -68,16 +69,37 @@ def get_tail():
     
     try:
         # Use parameterized query to handle string tail numbers safely
-        query = "SELECT * FROM Planes WHERE PlaneID = ?"
-        plane_data = cur.execute(query, (str(tail_num),)).fetchone()
-
+        # pd = cur.execute("SELECT * FROM Planes")
+        # for i in pd:
+        #     print(dict(i))
+        query = f"SELECT * FROM Planes WHERE PlaneID = '{tail_num}'"
+        print("0")
+        plane_data = cur.execute(query).fetchone()
+        print("1")
         if not plane_data:
             return jsonify({"status": "Failure", "message": f"Plane {tail_num} not found in airspace"})
-
+        print("2")
         # Logic helpers now take raw cursor to stay in one transaction
-        add_plane_to_inventory(current_user_id, tail_num, cur)
-        quest_reward = update_quests(current_user_id, tail_num, cur)
-
+        print("a")
+        existing = cur.execute(f"SELECT * FROM Inventory WHERE UID = {current_user_id} AND PlaneID = '{tail_num}'").fetchone()
+        print("b")
+        if not existing:
+            cur.execute(f"INSERT INTO Inventory (UID, PlaneID, BeenOn) VALUES ({current_user_id}, '{tail_num}', {"1"})")
+            print("c")
+        print("3")
+        quest = cur.execute(f"SELECT * FROM Quest WHERE UserID = {current_user_id} AND PlaneID = '{tail_num}'").fetchone()
+        if quest:
+            print("a2")
+            reward = quest['Reward']
+            cur.execute(f"UPDATE Users SET Points = Points + {reward} WHERE UID = {current_user_id}")
+            print("b2")
+            cur.execute(f"DELETE FROM Quest WHERE UserID = {current_user_id} AND PlaneID = '{tail_num}'")
+            quest_reward = reward
+        else:
+            quest_reward = 0
+        # quest_reward = update_quests(current_user_id, tail_num, cur)
+        print("4")
+        show_inv(cur)
         conn.commit()
         return jsonify({
             "status": "success",
@@ -87,23 +109,22 @@ def get_tail():
         })
     except Exception as e:
         conn.rollback()
+        print(e)
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
 
 def add_plane_to_inventory(user_id, tail_no, cur):  
+    pass
     # Fix: Corrected query syntax
-    existing = cur.execute("SELECT * FROM Inventory WHERE UID = ? AND PlaneID = ?", (user_id, tail_no)).fetchone()
-    if not existing:
-        cur.execute("INSERT INTO Inventory (UID, PlaneID, Count) VALUES (?, ?, ?)", (user_id, tail_no, 1))
 
 def update_quests(user_id, tail_no, cur):
     # Fix: Query the Quest table, not 'Quests'
-    quest = cur.execute("SELECT * FROM Quest WHERE UserID = ? AND PlaneID = ?", (user_id, tail_no)).fetchone()
+    quest = cur.execute("SELECT * FROM Quest WHERE UserID = ? AND PlaneID = '?'", (user_id, str(tail_no))).fetchone()
     if quest:
         reward = quest['Reward']
         cur.execute("UPDATE Users SET Points = Points + ? WHERE UserID = ?", (reward, user_id))
-        cur.execute("DELETE FROM Quest WHERE UserID = ? AND PlaneID = ?", (user_id, tail_no))
+        cur.execute("DELETE FROM Quest WHERE UserID = ? AND PlaneID = '?'", (user_id, str(tail_no)))
         return reward
     return 0
 
@@ -135,6 +156,25 @@ def get_plane(tail_no):
     if plane_data:
         return jsonify(dict(plane_data))
     return jsonify({"error": "Plane not found"}), 404
+# python_backend/server.py
 
+@app.route('/user/stats', methods=['GET'])
+def get_user_stats():
+    current_user_id = 1 # Testing ID
+    conn = get_db()
+    cur = conn.cursor()
+    
+    # Fetch points from the Users table
+    user = cur.execute("SELECT Points FROM Users WHERE UID = ?", (current_user_id,)).fetchone()
+    conn.close()
+    
+    if user:
+        return jsonify({"points": user["Points"]})
+    return jsonify({"points": 0})
+
+def show_inv(cur):
+    nas = cur.execute("SELECT * From Inventory where UID = 1")
+    for i in nas:
+        print(dict(i))
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

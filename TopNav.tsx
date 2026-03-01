@@ -1,39 +1,42 @@
-import { useState } from "react";
-import { topQuestIconStyle } from "../styles/navStyles";
+import React from 'react';
 
-export default function TopNav() {
-  const [open, setOpen] = useState(false);
+interface TopNavProps {
+  points: number;
+}
 
+const TopNav: React.FC<TopNavProps> = ({ points }) => {
   return (
-    <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000 }}>
-      {/* Icon button */}
-      <div
-        style={{ ...topQuestIconStyle, cursor: "pointer" }}
-        onClick={() => setOpen(!open)}
-      >
-        ✔️
-      </div>
-
-      {/* Dropdown */}
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: 40, // slightly below the icon
-            right: 0,
-            background: "white",
-            borderRadius: 8,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            padding: 10,
-            minWidth: 150,
-            zIndex: 1000,
-          }}
-        >
-          <div style={{ padding: "5px 10px", cursor: "pointer" }}>Daily Quest</div>
-          <div style={{ padding: "5px 10px", cursor: "pointer" }}>Active Missions</div>
-          <div style={{ padding: "5px 10px", cursor: "pointer" }}>Completed</div>
-        </div>
-      )}
+    <div style={{
+      position: 'absolute',
+      top: '20px',
+      left: '20px',
+      zIndex: 1000, // Ensure it sits above the map
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      padding: '10px 16px',
+      borderRadius: '25px', // "Pill" shape for a modern look
+      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+      fontFamily: 'sans-serif',
+      fontWeight: 'bold',
+      color: '#2c3e50',
+      pointerEvents: 'none' // Allows clicking the map behind it if needed
+    }}>
+      {/* Trophy Icon for gamification */}
+      <span style={{ 
+        fontSize: '1.2rem', 
+        marginRight: '8px',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        🏆
+      </span>
+      {/* Numeric value badge */}
+      <span style={{ fontSize: '1.1rem' }}>
+        {points.toLocaleString()} pts
+      </span>
     </div>
   );
-}
+};
+
+export default TopNav;
