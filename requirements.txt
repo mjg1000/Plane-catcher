@@ -1,0 +1,4 @@
+google-generativeai
+pillow
+requests
+flask
