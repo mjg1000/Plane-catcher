@@ -2,40 +2,42 @@ import sqlite3
 import random
 from datetime import datetime, timedelta
 
-def MakeDB(cur:sqlite3.Cursor):
-    cur.execute("CREATE TABLE Planes(PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate)")
+def MakeDB(cur: sqlite3.Cursor):
+    # Added PlaneModel to the schema
+    cur.execute("CREATE TABLE IF NOT EXISTS Planes(PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel)")
     
-def NewPlane(cur:sqlite3.Cursor, PlaneID : int, Airline : str, Miles : int, Age : int, Angle : int, ArrivalTime : int, ArrivalDate : str):
-    cur.execute(f"""INSERT INTO Planes VALUES ({PlaneID}, "{Airline}", {Miles}, {Age}, {Angle}, "{ArrivalTime}" ,"{ArrivalDate}")""")
+def NewPlane(cur: sqlite3.Cursor, PlaneID: int, Airline: str, Miles: int, Age: int, Angle: float, ArrivalTime: int, ArrivalDate: str, PlaneModel: str):
+    # Use '?' placeholders to handle types (like None/NULL) and security safely
+    query = "INSERT INTO Planes VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    cur.execute(query, (PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel))
     
-def DelPlane(cur:sqlite3.Cursor, PlaneID : int):
-    cur.execute(f"""DELETE FROM Planes WHERE PlaneID={PlaneID}""")
+def DelPlane(cur: sqlite3.Cursor, PlaneID: int):
+    cur.execute("DELETE FROM Planes WHERE PlaneID=?", (PlaneID,))
     
 def MakeDumbyData(cur: sqlite3.Cursor, Entries: int):
     PlaneIDs = list(range(10000))
-    Airlines = ["EasyJet", "RyanAir", "British Airways", "Emirate", "Lufthanse"]
+    Airlines = ["EasyJet", "RyanAir", "British Airways", "Emirates", "Lufthansa", "TUI"]
+    # In Python, 'None' represents the SQL 'NULL' value
+    PlaneModels = ["B737", "B777", "A320", "A380", "Other", None]
     
-    # Get the current time as a starting point
     now = datetime.now()
 
     for _ in range(Entries):
-        PlaneID = int(random.choice(PlaneIDs))
+        PlaneID = random.choice(PlaneIDs)
         PlaneIDs.remove(PlaneID)
         Airline = random.choice(Airlines)
         Miles = random.randint(0, 100000)
         Age = random.randint(0, 50)
         Angle = random.randint(0, 35999) / 100
         
-        # 1. Randomly sample a time in the next 1 hours (in minutes)
+        # Select a model, which may be None (SQL NULL)
+        PlaneModel = random.choice(PlaneModels)
+        
         random_minutes_ahead = random.randint(0, 1 * 60)
         arrival_datetime = now + timedelta(minutes=random_minutes_ahead)
         
-        # 2. Format ArrivalDate as "D/M/YYYY" to match your DB logic
         ArrivalDate = arrival_datetime.strftime("%d/%m/%Y").lstrip("0").replace("/0", "/")
-        
-        # 3. Calculate ArrivalTime as the number of minutes elapsed in THAT day
-        # (Hours * 60) + Minutes
         ArrivalTime = (arrival_datetime.hour * 60) + arrival_datetime.minute
         
-        # Use your existing NewPlane function to insert
-        NewPlane(cur, PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate)
+        # Pass the PlaneModel to the NewPlane function
+        NewPlane(cur, PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel)

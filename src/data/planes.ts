@@ -2,23 +2,13 @@ import { Plane, GATWICK, CRUISE_SPEED_KMH, EARTH_RADIUS_KM } from "../types/Plan
 
 const API_BASE_URL = "http://127.0.0.1:5000";
 
-// Helper to convert degrees to radians
 const toRad = (deg: number) => deg * (Math.PI / 180);
-// Helper to convert radians to degrees
 const toDeg = (rad: number) => rad * (180 / Math.PI);
 
-/**
- * Calculates a starting position by moving a certain distance 
- * away from a center point along a specific bearing.
- */
-/**
- * Calculates a starting position by moving a certain distance 
- * away from a center point along a specific bearing.
- */
 function getStartingPoint(destLat: number, destLng: number, distanceKm: number, bearingDeg: number) {
   const R = EARTH_RADIUS_KM; 
-  const brng = toRad((bearingDeg + 180) % 360); // Reverse the bearing to move AWAY from Gatwick
-  const d_R = distanceKm / R; // This is the angular distance
+  const brng = toRad((bearingDeg + 180) % 360); 
+  const d_R = distanceKm / R; 
   
   const lat1 = toRad(destLat);
   const lon1 = toRad(destLng);
@@ -45,35 +35,68 @@ export async function getLivePlanes(): Promise<Plane[]> {
     const now = new Date();
 
     return data.map((p: any) => {
-      // 1. Parse the Arrival Date from DB string (format: "D/M/YYYY")
       const [day, month, year] = p.ArrivalDate.split('/').map(Number);
-      
-      // 2. Create the arrival date object using minutes from midnight
-      // In JS Date, months are 0-indexed (0 = Jan, 2 = March)
       const arrivalDateTime = new Date(year, month - 1, day, 0, 0, 0);
       arrivalDateTime.setMinutes(p.ArrivalTime); 
       
-      // 3. Calculate duration until arrival in seconds
       const diffMs = arrivalDateTime.getTime() - now.getTime();
       const durationSeconds = diffMs / 1000;
-
-      // If already arrived, use a tiny buffer; otherwise use the actual duration
       const travelTimeSeconds = durationSeconds > 0 ? durationSeconds : 1;
 
-      // 4. Distance = Speed * Time (Converting speed to KM/sec)
       const travelTimeHours = travelTimeSeconds / 3600;
       const distance = CRUISE_SPEED_KMH * travelTimeHours;
 
-      // 5. Project starting point away from Gatwick based on DB Angle
       const { lat, lng } = getStartingPoint(GATWICK.lat, GATWICK.lng, distance, p.Angle);
+      
+      // Corrected: Absolute paths relative to the 'public' folder
+      let url = "/Images/planes/737-default.png"; 
+      let sizex = 32, sizey = 32;
+      let anchx = 16, anchy = 16;
+      
+      console.log(p.PlaneModel)
+      if (!p.PlaneModel) { // Checking PlaneModel from your DB schema
+        sizex = 18; sizey = 18 * 2.1; anchx = 9; anchy = 9 * 2.1;
+        url = "/Images/planes/B35.png";
+      } else if (p.PlaneModel === "B737") {
+        sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = p.Airline === "TUI" 
+          ? "/Images/planes/737-Tui.png" 
+          : "/Images/planes/737-default.png";
+
+      } else if (p.PlaneModel === "B777") {
+        sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
+        if (p.Airline === "Emirates") url = "/Images/planes/777-Emirates.png";
+        else if (p.Airline === "TUI") url = "/Images/planes/777-Tui.png";
+        else url = "/Images/planes/777-default.png";
+
+      } else if (p.PlaneModel === "A320") {
+        sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = p.Airline === "EasyJet" 
+          ? "/Images/planes/A320-EasyJet.png" 
+          : "/Images/planes/A320-default.png";
+
+      } else if (p.PlaneModel === "A380") {
+        sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = p.Airline === "Emirates" 
+          ? "/Images/planes/A380-Emirates.png" 
+          : "/Images/planes/A380-default.png";
+      } else {
+        sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = "/Images/planes/SAAB.png";
+      }
 
       return new Plane(
-        `DB${p.PlaneID}`, 
-        lat, 
-        lng, 
-        "LGW", 
-        travelTimeSeconds, // Now passes seconds as required by your updated Plane class
-        p.Angle
+        `DB${p.PlaneID}`,
+        lat,
+        lng,
+        "LGW",
+        travelTimeSeconds,
+        p.Angle,
+        url,
+        16, 
+        16,
+        8,
+        8
       );
     });
   } catch (error) {

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import type { Plane } from "../types/Plane"
 import { planeIcon } from "../utils/leafletSetup"
+import L from "leaflet"
 
 type Props = {
   planes: Plane[]
@@ -64,17 +65,26 @@ export default function MapView({ planes }: Props) {
     >
       <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
 
-      {planes.map(p => (
-        <Marker
-          key={p.tail} // Changed from p.id to p.tail
-          position={[p.lat, p.lng]}
-          icon={planeIcon}
-          rotationAngle={p.angle - 30} // This property actually rotates the icon
-          rotationOrigin="center"
-        >
-          <PlanePopup plane={p} />
-        </Marker>
-      ))}
+      {planes.map((p) => {
+        // Create the icon using the unique properties from the Plane object
+        const isGeneric = p.img_url.includes("B35.png")
+        const customIcon = L.icon({
+          iconUrl: p.img_url,      // This is the /Images/... path// Ternary: if generic, use 18x37.8, else use 36.4x14
+          iconSize: isGeneric ? [18, 18 * 2.1] : [14 * 2.6, 14],
+          // Ternary: if generic, anchor at 9x18.9, else anchor at 7x7
+          iconAnchor: isGeneric ? [9, 9 * 2.1] : [7 * 2.6, 7],
+        });
+
+        return (
+          <Marker 
+            key={p.tail} 
+            position={[p.lat, p.lng]} 
+            icon={customIcon}
+          >
+            <PlanePopup plane={p} />
+          </Marker>
+        );
+      })}
     </MapContainer>
   )
 }
