@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Faro (FAO)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-03-01 20:45:00",
+    "estimated_arrival": "2026-03-01 23:29:00",
+    "direct_distance_miles": 912
+}

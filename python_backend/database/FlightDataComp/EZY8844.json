@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A321 (twin-jet)",
+    "route": {
+        "departure_airport": "Keflavik Int'l (KEF)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-03-01 11:20:00",
+    "estimated_arrival": "2026-03-01 14:19:00",
+    "direct_distance_miles": 1046
+}

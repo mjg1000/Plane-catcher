@@ -1,43 +1,68 @@
 import sqlite3
 import random
-from datetime import datetime, timedelta
+import os
+import json
+from datetime import datetime
 
 def MakeDB(cur: sqlite3.Cursor):
-    # Added PlaneModel to the schema
+    # Ensures the schema includes the PlaneModel column
     cur.execute("CREATE TABLE IF NOT EXISTS Planes(PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel)")
-    
-def NewPlane(cur: sqlite3.Cursor, PlaneID: int, Airline: str, Miles: int, Age: int, Angle: float, ArrivalTime: int, ArrivalDate: str, PlaneModel: str):
-    # Use '?' placeholders to handle types (like None/NULL) and security safely
-    query = "INSERT INTO Planes VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-    cur.execute(query, (PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel))
-    
-def DelPlane(cur: sqlite3.Cursor, PlaneID: int):
-    cur.execute("DELETE FROM Planes WHERE PlaneID=?", (PlaneID,))
-    
-def MakeDumbyData(cur: sqlite3.Cursor, Entries: int):
-    PlaneIDs = list(range(10000))
-    Airlines = ["EasyJet", "RyanAir", "British Airways", "Emirates", "Lufthansa", "TUI"]
-    # In Python, 'None' represents the SQL 'NULL' value
-    PlaneModels = ["B737", "B777", "A320", "A380", "Other", None]
-    
-    now = datetime.now()
 
-    for _ in range(Entries):
-        PlaneID = random.choice(PlaneIDs)
-        PlaneIDs.remove(PlaneID)
-        Airline = random.choice(Airlines)
-        Miles = random.randint(0, 100000)
-        Age = random.randint(0, 50)
-        Angle = random.randint(0, 35999) / 100
-        
-        # Select a model, which may be None (SQL NULL)
-        PlaneModel = random.choice(PlaneModels)
-        
-        random_minutes_ahead = random.randint(0, 1 * 60)
-        arrival_datetime = now + timedelta(minutes=random_minutes_ahead)
-        
-        ArrivalDate = arrival_datetime.strftime("%d/%m/%Y").lstrip("0").replace("/0", "/")
-        ArrivalTime = (arrival_datetime.hour * 60) + arrival_datetime.minute
-        
-        # Pass the PlaneModel to the NewPlane function
-        NewPlane(cur, PlaneID, Airline, Miles, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel)
+def NewPlane(cur: sqlite3.Cursor, PlaneID: int, Airline: str, Miles: int, Age: int, Angle: float, ArrivalTime: int, ArrivalDate: str, PlaneModel: str):
+    query = "INSERT INTO Planes VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    cur.execute(query, (PlaneID, Airline, Miles, Age, Age, Angle, ArrivalTime, ArrivalDate, PlaneModel))
+
+def LoadFlightData(cur: sqlite3.Cursor, folder_path: str = r"C:\Users\Steve\Documents\plane catcher\Plane-catcher\python_backend\database\FlightDataComp"):
+    """
+    Reads JSON files from the specified folder and inserts them into the database.
+    Missing schema fields are populated with random data.
+    """
+    if not os.path.exists(folder_path):
+        print(f"Folder {folder_path} not found.")
+        return
+
+    # Iterate through every file in the folder
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".json"):
+            file_path = os.path.join(folder_path, filename)
+            
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+
+                # 1. Extract PlaneID from filename (stripping .json)
+                # Example: "G-VZMA.json" -> PlaneID = "G-VZMA"
+                # Note: If your PlaneID column must be an int, use a hash or a map
+                plane_id = filename.replace(".json", "")
+
+                # 2. Map JSON fields to database schema
+                airline = data.get("airline", "Unknown")
+                miles = data.get("direct_distance_miles", 0)
+                
+                # Extracting Model from aircraft_model string
+                # Example: "Airbus A320 (twin-jet)" -> "A320"
+                raw_model = data.get("aircraft_model", "")
+                if "A320" in raw_model: plane_model = "A320"
+                elif "A380" in raw_model: plane_model = "A380"
+                elif "737" in raw_model: plane_model = "B737"
+                elif "777" in raw_model: plane_model = "B777"
+                else: plane_model = "Other"
+
+                # 3. Parse Arrival Time and Date
+                # Format: "2024-05-10 20:00:00"
+                arrival_str = data.get("estimated_arrival")
+                if arrival_str:
+                    dt_obj = datetime.strptime(arrival_str, "%Y-%m-%d %H:%M:%S")
+                    arrival_date = dt_obj.strftime("%d/%m/%Y").lstrip("0").replace("/0", "/")
+                    arrival_time = (dt_obj.hour * 60) + dt_obj.minute
+                else:
+                    arrival_date = "1/1/2024"
+                    arrival_time = 0
+
+                # 4. Generate random data for missing fields
+                age = random.randint(0, 30)
+                angle = random.randint(0, 35999) / 100
+
+                # 5. Insert into Database
+                NewPlane(cur, plane_id, airline, miles, age, angle, arrival_time, arrival_date, plane_model)
+
+    print(f"Successfully processed {len(os.listdir(folder_path))} flight data files.")

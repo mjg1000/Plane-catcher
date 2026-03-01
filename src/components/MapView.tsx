@@ -80,6 +80,8 @@ export default function MapView({ planes }: Props) {
             key={p.tail} 
             position={[p.lat, p.lng]} 
             icon={customIcon}
+            rotationAngle={p.angle-30}
+            rotationOrigin="center"
           >
             <PlanePopup plane={p} />
           </Marker>

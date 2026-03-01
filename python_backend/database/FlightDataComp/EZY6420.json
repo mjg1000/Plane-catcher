@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Marco Polo Int'l (Marco Polo Venice) (VCE)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-02-28 19:45:00",
+    "estimated_arrival": "2026-02-28 21:47:00",
+    "direct_distance_miles": 604
+}

@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Dubrovnik (DBV)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-02-28 19:00:00",
+    "estimated_arrival": "2026-02-28 21:41:43",
+    "direct_distance_miles": 914
+}

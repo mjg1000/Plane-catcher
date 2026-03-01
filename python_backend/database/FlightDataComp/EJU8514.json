@@ -1,0 +1,11 @@
+{
+    "airline": "easyJet Europe",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "General Humberto Delgado Airport (LIS)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2024-05-10 17:03:00",
+    "estimated_arrival": "2024-05-10 20:00:00",
+    "direct_distance_miles": 834
+}

@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Belfast Int'l (BFS)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-03-01 09:25:00",
+    "estimated_arrival": "2026-03-01 10:43:00",
+    "direct_distance_miles": 303
+}

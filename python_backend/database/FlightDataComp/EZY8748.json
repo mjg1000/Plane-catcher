@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Hurghada (HRG)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-02-28 17:00:00",
+    "estimated_arrival": "2026-02-28 22:49:00",
+    "direct_distance_miles": 2108
+}

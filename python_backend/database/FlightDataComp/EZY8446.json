@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Nantes Atlantique (NTE)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-03-01 09:15:00",
+    "estimated_arrival": "2026-03-01 10:16:00",
+    "direct_distance_miles": 247
+}

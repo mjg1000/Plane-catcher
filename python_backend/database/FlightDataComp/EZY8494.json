@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A319 (twin-jet)",
+    "route": {
+        "departure_airport": "Geneva Cointrin Int'l (GVA)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-03-01 08:35:00",
+    "estimated_arrival": "2026-03-01 10:26:00",
+    "direct_distance_miles": 386
+}

@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Malta Int'l (Luqa) (MLA)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-02-28 19:05:00",
+    "estimated_arrival": "2026-02-28 22:51:00",
+    "direct_distance_miles": 1115
+}

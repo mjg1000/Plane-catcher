@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A320 (twin-jet)",
+    "route": {
+        "departure_airport": "Malpensa Int'l (MXP)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-03-01 21:34:00",
+    "estimated_arrival": "2026-03-01 23:07:00",
+    "direct_distance_miles": 486
+}

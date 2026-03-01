@@ -1,0 +1,11 @@
+{
+    "airline": "EasyJet Airline Co. Ltd.",
+    "aircraft_model": "Airbus A319 (twin-jet)",
+    "route": {
+        "departure_airport": "Palma de Mallorca (or Son Sant Joan) (PMI)",
+        "arrival_airport": "London Gatwick (LGW)"
+    },
+    "estimated_departure": "2026-02-28 20:01:00",
+    "estimated_arrival": "2026-02-28 22:25:43",
+    "direct_distance_miles": 708
+}
