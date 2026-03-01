@@ -24,7 +24,7 @@ UserDataBse.MakeDumbyData(cur)
 
 # Use the new JSON loader for Planes instead of random dummy data
 # This uses your FlightDataComp folder information
-GatwickPlanesDataBse.LoadFlightData(cur, "FlightDataComp")
+GatwickPlanesDataBse.LoadFlightData(cur)
 
 # Populate Quests
 QuestDataBse.MakeDumbyData(cur, 3)

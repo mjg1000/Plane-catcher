@@ -71,7 +71,7 @@ export async function getLivePlanes(): Promise<Plane[]> {
 
       } else if (p.PlaneModel === "A320") {
         sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
-        url = p.Airline === "EasyJet" 
+        url = p.Airline === "EasyJet Airline Co. Ltd." 
           ? "/Images/planes/A320-EasyJet.png" 
           : "/Images/planes/A320-default.png";
 

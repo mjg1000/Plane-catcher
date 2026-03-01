@@ -68,7 +68,8 @@ def get_tail():
     
     try:
         # Use parameterized query to handle string tail numbers safely
-        plane_data = cur.execute("SELECT * FROM Planes WHERE PlaneID = ?", (tail_num,)).fetchone()
+        query = "SELECT * FROM Planes WHERE PlaneID = ?"
+        plane_data = cur.execute(query, (str(tail_num),)).fetchone()
 
         if not plane_data:
             return jsonify({"status": "Failure", "message": f"Plane {tail_num} not found in airspace"})
@@ -124,24 +125,15 @@ def update_quests(json_plane, json_quests): # also incremenents point totals.
 
 @app.route('/plane/<tail_no>', methods=['GET'])
 def get_plane(tail_no):
-    """Query the database for a specific plane."""
-    
-    # Remove the request.args.get line entirely.
-    # Use the tail_no from the URL path.
-    
     conn = get_db()
     cur = conn.cursor()
-    
-    # Use the tail_no variable directly from the function argument.
-    # Cast to int to ensure it matches the PlaneID column type.
+    # DO NOT use int(tail_no). Tail numbers like EJU8514 are strings.
     query = "SELECT * FROM Planes WHERE PlaneID = ?"
-    plane_data = cur.execute(query, (int(tail_no),)).fetchone()
-    
+    plane_data = cur.execute(query, (str(tail_no),)).fetchone()
     conn.close()
     
     if plane_data:
         return jsonify(dict(plane_data))
-    
     return jsonify({"error": "Plane not found"}), 404
 
 if __name__ == "__main__":
