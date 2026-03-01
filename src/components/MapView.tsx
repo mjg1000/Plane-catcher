@@ -69,7 +69,7 @@ export default function MapView({ planes }: Props) {
           key={p.tail} // Changed from p.id to p.tail
           position={[p.lat, p.lng]}
           icon={planeIcon}
-          rotationAngle={p.angle} // This property actually rotates the icon
+          rotationAngle={p.angle - 30} // This property actually rotates the icon
           rotationOrigin="center"
         >
           <PlanePopup plane={p} />

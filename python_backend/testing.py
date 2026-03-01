@@ -5,23 +5,31 @@ from database import InventoryDataBse
 
 conn = get_db()
 cur = conn.cursor()
-# Use your existing logic from Database.py
+
+# 1️⃣ Drop existing tables if they exist
+cur.execute("DROP TABLE IF EXISTS Users")
+cur.execute("DROP TABLE IF EXISTS Planes")
+cur.execute("DROP TABLE IF EXISTS Inventory")
+
+# 2️⃣ Re-create tables
 UserDataBse.MakeDB(cur)
 GatwickPlanesDataBse.MakeDB(cur)
 InventoryDataBse.MakeDB(cur)
+
+# 3️⃣ Populate with dummy data
 UserDataBse.MakeDumbyData(cur)
 GatwickPlanesDataBse.MakeDumbyData(cur, 50)
-# InventoryDataBse.MakeDumbyInventory(cur)
+# InventoryDataBse.MakeDumbyInventory(cur)  # optional
+
 conn.commit()
 
-
-cur.execute('select * from Planes')
-
-# 4. See the outputs (Fetch all rows)
+# 4️⃣ Verify
+cur.execute('SELECT * FROM Planes')
 rows = cur.fetchall()
-print(len(rows))
+print(f"Planes in DB: {len(rows)}")
 # for row in rows:
 #     print(dict(row))
 print("done")
-# 5. Close the connection when finished
+
+# 5️⃣ Close connection
 conn.close()
