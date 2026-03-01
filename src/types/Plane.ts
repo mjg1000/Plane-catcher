@@ -44,19 +44,19 @@ export class Plane {
   lat: number;
   lng: number;
   dest: string;
-  arrivalTime: number; // hours
+  arrivalDurationSeconds: number; // Coherent: Total travel time in seconds
   angle: number;
   spawnedAt: number;
   arrivedAt: number | null;
 
-  constructor(tail: string, lat: number, lng: number, dest: string, arrivalTime: number, angle: number) {
+  constructor(tail: string, lat: number, lng: number, dest: string, arrivalDurationSeconds: number, angle: number) {
     this.tail = tail;
     this.startLat = lat;
     this.startLng = lng;
     this.lat = lat;
     this.lng = lng;
     this.dest = dest;
-    this.arrivalTime = arrivalTime;
+    this.arrivalDurationSeconds = arrivalDurationSeconds; //
     this.angle = angle;
     this.spawnedAt = Date.now();
     this.arrivedAt = null;
@@ -64,10 +64,10 @@ export class Plane {
 
   // Returns true if plane should remain in state
   updatePosition(now: number, destLat: number, destLng: number): boolean {
-    const elapsedHours = (now - this.spawnedAt) / (1000 * 60 * 60);
+    const elapsedSeconds = (now - this.spawnedAt) / 1000; //
 
-    if (elapsedHours < this.arrivalTime) {
-      const progress = elapsedHours / this.arrivalTime;
+    if (elapsedSeconds < this.arrivalDurationSeconds) {
+      const progress = elapsedSeconds / this.arrivalDurationSeconds;
       this.lat = this.startLat + (destLat - this.startLat) * progress;
       this.lng = this.startLng + (destLng - this.startLng) * progress;
       return true;
@@ -82,5 +82,17 @@ export class Plane {
 
     const timeSinceArrival = (now - this.arrivedAt) / 1000;
     return timeSinceArrival < 10;
+  }
+
+  async fetchMetadata(): Promise<any> {
+    try {
+      // Extract numerical ID from 'DB1234' format
+      const tailId = this.tail.replace('DB', ''); 
+      const response = await fetch(`http://127.0.0.1:5000/plane/${tailId}`);
+      return await response.json();
+    } catch (error) {
+      console.error("fetchMetadata error:", error);
+      throw error;
+    }
   }
 }

@@ -1,6 +1,6 @@
 from google import genai
 from google.genai import types
-from python_backend.keys import keyStore
+from keys import keyStore
 from PIL import Image, ImageDraw, ImageFont
 import json
 import io
@@ -29,9 +29,9 @@ class gemini_components():
         first_answer =  self.bounding_box(image_bytes, im_type, name)
         print("checked:", first_answer)
         if first_answer == 0:
-            return "Tail number not identifiable"
+            return "Tail number not identifiable", -1
         elif first_answer == 1:
-            return "Tail number too low quality"
+            return "Tail number too low quality", -1
         else:
             image = first_answer
         buffer = io.BytesIO()
@@ -43,8 +43,9 @@ class gemini_components():
         
         if "Tail number: " in tail:
             tail = tail.split("Tail number: ")[1]
-        return tail
-    
+            return tail, 1
+        else: 
+            return tail, -1
 
         
     def request_gemini_extract(self, image_bytes, im_type):
@@ -199,7 +200,7 @@ def test_acc(comp):
             image_bytes = f.read()
             im_type = filename.split(".")[1]
 
-            res = comp.request_gemini(image_bytes, im_type, filename)
+            res = comp.request_gemini(image_bytes, im_type, filename)[0]
             if "Error: " in res:
                 res = res.split("Error: ")[1]
             print(res, " / ", answers[img_num], " / ", ("TestGem/Images/"+filename))
@@ -240,7 +241,7 @@ def test_vis(comp):
             # image = Image.open(io.BytesIO(image_bytes))
             # image.show()
             im_type = filename.split(".")[1]
-            res = comp.request_gemini(image_bytes, im_type, filename)
+            res = comp.request_gemini(image_bytes, im_type, filename)[0]
             if "Error: " in res:
                 res = res.split("Error: ")[1]
             print(res, " / ", answers[img_num], " / ", ("TestGem/Images/"+filename))
