@@ -6,11 +6,14 @@ import { centerCircleButton } from "./styles/navStyles"
 import { Plane, GATWICK } from "./types/Plane";
 import { getLivePlanes } from "./data/planes";
 //import {getTail} from "./utils/tailAi"
+import Inventory from "./data/Inventory";
+import Rewards from "./data/Rewards";
 
 export default function App() {
   const [planes, setPlanes] = useState<Plane[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [currentPage, setCurrentPage] = useState<"map" | "inventory" | "rewards">("map");
 
   useEffect(() => {
     getLivePlanes().then(liveData => setPlanes(liveData));
@@ -83,29 +86,36 @@ export default function App() {
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-      }}
-    >
-      <MapView planes={planes} />
-      <TopNav />
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh",
+      overflow: "hidden",
+    }}
+  >
+    {/* Render the main content depending on current page */}
+    {currentPage === "map" && (
+      <>
+        <MapView planes={planes} />
+        {/* Hidden video & canvas for capture */}
+        <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline />
+        <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {/* Hidden video & canvas for capture */}
-      <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline />
-      <canvas ref={canvasRef} style={{ display: "none" }} />
+        {/* Camera button */}
+        <button style={centerCircleButton} onClick={handleCameraClick}>
+          📸
+        </button>
+      </>
+    )}
 
-      {/* Camera button */}
-      <button style={centerCircleButton} onClick={handleCameraClick}>
-        📸
-      </button>
+    {currentPage === "inventory" && <Inventory />}
+    {currentPage === "rewards" && <Rewards />}
 
-      <BottomNav />
-    </div>
-  )
+    <TopNav />
+    <BottomNav setPage={setCurrentPage} />
+  </div>
+);
 }
