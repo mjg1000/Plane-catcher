@@ -3,4 +3,6 @@ keys.py
 TestGem/
 TestVis/
 TestBox/
+box_images
+.vscode/
 __pycache__/
