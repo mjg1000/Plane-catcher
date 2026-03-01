@@ -127,7 +127,7 @@ def get_plane(tail_no):
     # Use the tail_no variable directly from the function argument.
     # Cast to int to ensure it matches the PlaneID column type.
     query = "SELECT * FROM Planes WHERE PlaneID = ?"
-    plane_data = cur.execute(query, (str(tail_no),)).fetchone()
+    plane_data = cur.execute(query, (int(tail_no),)).fetchone()
     
     conn.close()
     

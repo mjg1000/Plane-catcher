@@ -19,7 +19,7 @@ def MakeDumbyData(cur: sqlite3.Cursor, Entries: int):
     now = datetime.now()
 
     for _ in range(Entries):
-        PlaneID = str(random.choice(PlaneIDs))
+        PlaneID = int(random.choice(PlaneIDs))
         PlaneIDs.remove(PlaneID)
         Airline = random.choice(Airlines)
         Miles = random.randint(0, 100000)
