@@ -67,10 +67,12 @@ export default function MapView({ planes }: Props) {
 
       {planes.map((p) => {
         // Create the icon using the unique properties from the Plane object
+        const isGeneric = p.img_url.includes("B35.png")
         const customIcon = L.icon({
-          iconUrl: p.img_url,      // This is the /Images/... path
-          iconSize: [p.sizex*0.1, p.sizey*0.1],
-          iconAnchor: [p.anchx*0.1, p.anchy*0.1],
+          iconUrl: p.img_url,      // This is the /Images/... path// Ternary: if generic, use 18x37.8, else use 36.4x14
+          iconSize: isGeneric ? [18, 18 * 2.1] : [14 * 2.6, 14],
+          // Ternary: if generic, anchor at 9x18.9, else anchor at 7x7
+          iconAnchor: isGeneric ? [9, 9 * 2.1] : [7 * 2.6, 7],
         });
 
         return (
