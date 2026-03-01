@@ -1,75 +1,57 @@
-import { useState } from "react";
-import internalImg from "./rewards.jpg";
+import { useEffect, useState } from "react";
 
-export default function Internal() {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [start, setStart] = useState({ x: 0, y: 0 });
+interface Plane {
+  PlaneID: string;
+  Model: string;
+  Airline: string;
+  BeenOn: number;
+}
 
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    setDragging(true);
-    setStart({ x: e.clientX - pos.x, y: e.clientY - pos.y });
-  };
+export default function Inventory() {
+  const [items, setItems] = useState<Plane[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragging) return;
+  useEffect(() => {
+    // Fetch inventory for Player ID 1
+    fetch("http://localhost:5000/inventory/1")
+      .then((res) => res.json())
+      .then((data) => {
+        setItems(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching inventory:", err);
+        setLoading(false);
+      });
+  }, []);
 
-    const newX = e.clientX - start.x;
-    const newY = e.clientY - start.y;
-
-    // Get viewport and image dimensions
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    const img = new Image();
-    img.src = internalImg;
-    const aspectRatio = img.width / img.height; // approximate ratio
-    const imgHeight = vh;
-    const imgWidth = imgHeight * aspectRatio;
-
-    // Constrain dragging
-    const maxX = 0;
-    const minX = Math.min(vw - imgWidth, 0);
-    const maxY = 0;
-    const minY = Math.min(vh - imgHeight, 0);
-
-    setPos({
-      x: Math.max(Math.min(newX, maxX), minX),
-      y: Math.max(Math.min(newY, maxY), minY),
-    });
-  };
-
-  const onMouseUp = () => setDragging(false);
-  const onMouseLeave = () => setDragging(false);
+  if (loading) return <div style={{ padding: 20 }}>Loading Inventory...</div>;
 
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-        cursor: dragging ? "grabbing" : "grab",
-        backgroundColor: "#000",
-        position: "relative",
-      }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseLeave}
-    >
-      <img
-        src={internalImg}
-        alt="Internal Map"
-        style={{
-          position: "absolute",
-          top: pos.y,
-          left: pos.x,
-          height: "100vh",
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-        draggable={false}
-      />
+    <div style={{ padding: 20 }}>
+      <h1>🎒 My Collection</h1>
+      {items.length === 0 ? (
+        <p>Your inventory is empty. Start catching planes!</p>
+      ) : (
+        <ul style={{ listStyleType: "none", padding: 0 }}>
+          {items.map((plane) => (
+            <li 
+              key={plane.PlaneID} 
+              style={{ 
+                borderBottom: "1px solid #ccc", 
+                padding: "10px 0",
+                display: "flex",
+                justifyContent: "space-between"
+              }}
+            >
+              <div>
+                <strong>{plane.PlaneID}</strong> - {plane.Airline} {plane.Model}
+              </div>
+              <span>{plane.BeenOn ? "✅ Flown" : "🔭 Spotted"}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

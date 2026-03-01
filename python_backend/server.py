@@ -176,5 +176,21 @@ def show_inv(cur):
     nas = cur.execute("SELECT * From Inventory where UID = 1")
     for i in nas:
         print(dict(i))
+
+@app.route('/inventory/<int:user_id>', methods=['GET'])
+def get_user_inventory(user_id):
+    conn = get_db()
+    cur = conn.cursor()
+    # Join Inventory with Planes to get plane details (Model, Airline, etc.)
+    query = """
+        SELECT p.*, i.BeenOn 
+        FROM Inventory i 
+        JOIN Planes p ON i.PlaneID = p.PlaneID 
+        WHERE i.UID = ?
+    """
+    inventory = cur.execute(query, (user_id,)).fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in inventory])
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
