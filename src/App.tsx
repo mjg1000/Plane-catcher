@@ -11,7 +11,7 @@ import Internal from "./data/internalMap";
 
 export default function App() {
   const [planes, setPlanes] = useState<Plane[]>([]);
-  const [points, setPoints] = useState<number>(0); // Added points state
+  const [points, setPoints] = useState<number>(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -19,13 +19,15 @@ export default function App() {
     "map" | "inventory" | "rewards" | "internalMap"
   >("map");
 
-  // Function to fetch points from the backend
+  /**
+   * Fetch current user points from the backend.
+   * This ensures the TopNav reflects accurate point totals.
+   */
   const fetchUserStats = async () => {
     try {
       const response = await fetch("http://127.0.0.1:5000/user/stats");
       if (response.ok) {
         const data = await response.json();
-        console.log(data.points)
         setPoints(data.points);
       }
     } catch (error) {
@@ -33,19 +35,19 @@ export default function App() {
     }
   };
 
-  // Initial data load
+  // Initial data load for planes and user points
   useEffect(() => {
     getLivePlanes().then((liveData) => setPlanes(liveData));
-    fetchUserStats(); // Initial points fetch
+    fetchUserStats(); 
   }, []);
 
-  // Polling to keep points in sync
+  // Periodic polling to keep points in sync (every 5 seconds)
   useEffect(() => {
     const statsInterval = setInterval(fetchUserStats, 5000);
     return () => clearInterval(statsInterval);
   }, []);
 
-  // Update planes
+  // Plane position update loop
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
@@ -59,8 +61,8 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, []);
-
-  // Request webcam access
+  
+  // Camera initialization
   useEffect(() => {
     async function startCamera() {
       try {
@@ -73,7 +75,10 @@ export default function App() {
     startCamera();
   }, []);
 
-  // Take a snapshot
+  /**
+   * Captures an image and sends it to the backend for identification.
+   * If a quest is completed, points are refreshed immediately.
+   */
   async function handleCameraClick() {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
@@ -84,7 +89,6 @@ export default function App() {
     if (!ctx) return;
     ctx.drawImage(video, 0, 0);
     const imageData = canvas.toDataURL("image/png");
-    console.log("Snapshot taken!");
 
     try {
       const response = await fetch("http://127.0.0.1:5000/tail", {
@@ -94,11 +98,9 @@ export default function App() {
       });
 
       const result = await response.json();
-      console.log("Server response:", result);
       
-      // If identification succeeded, refresh points immediately
+      // Update points immediately if the plane was a quest target
       if (result["status"] !== "Failure") {
-        console.log("Reward earned:", result["reward"]);
         fetchUserStats(); 
       }
     } catch (err) {
@@ -117,7 +119,9 @@ export default function App() {
         overflow: "hidden",
       }}
     >
-      {/* Pass the points state to TopNav */}
+      {/* TopNav now receives 'points' and manages its own 
+          internal quest list fetching. 
+      */}
       <TopNav points={points} />
 
       {currentPage === "map" && (

@@ -191,6 +191,23 @@ def get_user_inventory(user_id):
     inventory = cur.execute(query, (user_id,)).fetchall()
     conn.close()
     return jsonify([dict(row) for row in inventory])
+@app.route('/quests/<int:user_id>', methods=['GET'])
+def get_user_quests(user_id):
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        # Joins Quest table with Planes table to get details for the UI
+        query = """
+            SELECT q.Reward, p.PlaneID, p.Airline, p.PlaneModel
+            FROM Quest q
+            JOIN Planes p ON q.PlaneID = p.PlaneID
+            WHERE q.UserID = ?
+        """
+        quests = cur.execute(query, (user_id,)).fetchall()
+        conn.close()
+        return jsonify([dict(row) for row in quests])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
