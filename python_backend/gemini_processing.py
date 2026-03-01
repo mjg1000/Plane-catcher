@@ -1,6 +1,6 @@
 from google import genai
 from google.genai import types
-from keys import keyStore
+from python_backend.keys import keyStore
 from PIL import Image, ImageDraw, ImageFont
 import json
 import io

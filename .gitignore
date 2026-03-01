@@ -32,3 +32,6 @@ TestBox/
 box_images
 .vscode/
 __pycache__/
+
+#DB
+Users.db
