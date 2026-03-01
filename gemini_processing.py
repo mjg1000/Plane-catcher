@@ -20,7 +20,7 @@ class gemini_components():
 
         self.client = genai.Client(api_key = gemini_key)
         self.models = ["gemini-2.5-flash", "gemma-3-27b-it", "gemma-3-12b-it", "gemini-3-flash-preview", "gemini-2.5-flash-lite"]
-        self.model_choices = {"check":0, "extract":1, "box":0}
+        self.model_choices = {"check":1, "extract":1, "box":0}
         print("model check:",self.models[self.model_choices['check']],"model extract:",self.models[self.model_choices['extract']],"model box:",self.models[self.model_choices['box']])
 
     def request_gemini(self, image_bytes, im_type, name):
@@ -292,6 +292,8 @@ if __name__ == "__main__":
 #18 points
 #11/18 correct
 # 4/4 obscured were detected as obscured
+# correctly filtered 5/6 
+# suitable for all phones past iphone 11
 
 # model check: gemini-2.5-flash model extract: gemma-3-27b-it model box: gemini-2.5-flash
 # ['N650GA', 'G-ZBJK', 'N236MJ', 'N61848', 'Tail Number Not Visible', 'Tail Number Not Visible', 'Tail Number Not Visible', 'Tail Number Not Visible', 'Tail Number Not Visible', 'EW-465TQ', 'F-M**O', 'Tail Number Not Visible', 'N955WN', 'Tail Number Not Visible', 'UR-82072', '29000', 'F-GSQU', 'Tail Number Not Visible', 'N225NE', 'Tail Number Not Visible', 'Tail Number Not Visible', 'Tail Number Not Visible', '3***', 'PH-BFV', 'TF-FIC', 'EW-465TQ', 'N4SD', 'N782SP', 'O*-59**5', 'N709PS', '124-100M', 'O-***', 'RA-*207*', 'Tail Number Not Visible']
