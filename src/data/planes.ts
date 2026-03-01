@@ -66,14 +66,57 @@ export async function getLivePlanes(): Promise<Plane[]> {
 
       // 5. Project starting point away from Gatwick based on DB Angle
       const { lat, lng } = getStartingPoint(GATWICK.lat, GATWICK.lng, distance, p.Angle);
+      let url = "../utils/images/default.png";
+      let sizex = 32, sizey = 32;
+      let anchx = 16, anchy = 16;
 
+      
+      if (!p.PlaneType){
+        sizex = 18; sizey = 18*2.1; anchx = 9; anchy = 9*2.1;
+        url = "../utils/images//B35.png";
+      } else if (p.PlaneType === "B737") {
+        sizex = 14*2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = p.Airline === "TUI" 
+          ? "../utils/images//737-Tui.png" 
+          : "../utils/images//737-default.png";
+
+      } else if (p.PlaneType === "B777") {
+        sizex = 14*2.6; sizey = 14; anchx = 7; anchy = 7;
+        if (p.Airline === "Emirates") url = "../utils/images/777-Emirates.png";
+        else if (p.Airline === "TUI") url = "../utils/images//777-Tui.png";
+        else url = "../utils/images/s/777-default.png";
+
+      } else if (p.PlaneType === "A320") {
+        sizex = 14*2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = p.Airline === "EasyJet" 
+          ? "../utils/images//A320-EasyJet.png" 
+          : "../utils/images//A320-default.png";
+
+      } else if (p.PlaneType === "A380") {
+        sizex = 14*2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = p.Airline === "Emirates" 
+          ? "../utils/images//A380-Emirates.png" 
+          : "../utils/images//A380-default.png";
+      }
+      else{
+        sizex = 14*2.6; sizey = 14; anchx = 7; anchy = 7;
+        url = "../utils/images//SAAB.png";
+
+      }
+
+      // 5. Instantiate Plane with new metadata
       return new Plane(
-        `DB${p.PlaneID}`, 
-        lat, 
-        lng, 
-        "LGW", 
-        travelTimeSeconds, // Now passes seconds as required by your updated Plane class
-        p.Angle
+        `DB${p.PlaneID}`,
+        lat,
+        lng,
+        "LGW",
+        travelTimeSeconds,
+        p.Angle,
+        url,
+        sizex, 
+        sizey,
+        anchx,
+        anchy
       );
     });
   } catch (error) {

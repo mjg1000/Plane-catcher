@@ -49,7 +49,14 @@ export class Plane {
   spawnedAt: number;
   arrivedAt: number | null;
 
-  constructor(tail: string, lat: number, lng: number, dest: string, arrivalDurationSeconds: number, angle: number) {
+  img_url: string;
+  img_size_x: number;
+  img_size_y: number;
+  img_anch_x: number;
+  img_anch_y: number;
+  
+
+  constructor(tail: string, lat: number, lng: number, dest: string, arrivalDurationSeconds: number, angle: number, url: string, size_x: number, size_y: number, anch_x: number, anch_y: number) {
     this.tail = tail;
     this.startLat = lat;
     this.startLng = lng;
@@ -60,6 +67,12 @@ export class Plane {
     this.angle = angle;
     this.spawnedAt = Date.now();
     this.arrivedAt = null;
+
+    this.img_url = url;
+    this.img_size_x = size_x;
+    this.img_size_y = size_y;
+    this.img_anch_x = anch_x;
+    this.img_anch_y = anch_y;
   }
 
   // Returns true if plane should remain in state

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import type { Plane } from "../types/Plane"
 import { planeIcon } from "../utils/leafletSetup"
+import L from "leaflet"
 
 type Props = {
   planes: Plane[]
@@ -64,17 +65,24 @@ export default function MapView({ planes }: Props) {
     >
       <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
 
-      {planes.map(p => (
-        <Marker
-          key={p.tail} // Changed from p.id to p.tail
-          position={[p.lat, p.lng]}
-          icon={planeIcon}
-          rotationAngle={p.angle} // This property actually rotates the icon
-          rotationOrigin="center"
-        >
-          <PlanePopup plane={p} />
-        </Marker>
-      ))}
+      {planes.map(p => {
+        // Create a unique icon for this specific plane
+        const customIcon = L.icon({
+          iconUrl: p.img_url,
+          iconSize: [p.img_size_x, p.img_size_y],
+          iconAnchor: [p.img_anch_x, p.img_anch_y],
+        });
+
+        return (
+          <Marker
+            key={p.tail}
+            position={[p.lat, p.lng]}
+            icon={customIcon} // Use the unique icon
+          >
+            <PlanePopup plane={p} />
+          </Marker>
+        );
+      })}
     </MapContainer>
   )
 }
