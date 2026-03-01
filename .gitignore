@@ -1,6 +1,6 @@
 keys.py
 *.env
-testGem.*
-testVis.*
-testBox.*
+TestGem/
+TestVis/
+TestBox/
 __pycache__/
