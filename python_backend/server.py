@@ -54,7 +54,7 @@ def get_tail():
 
     image_b64 = data['image'].split(',')[1]
     image_bytes = base64.decodebytes(image_b64.encode()) # Cleaner decoding
-    
+
     res = component.request_gemini(image_bytes, "PNG", "photo_taken")
 
     if res[1] == -1:
