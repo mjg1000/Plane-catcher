@@ -65,19 +65,19 @@ export default function MapView({ planes }: Props) {
     >
       <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
 
-      {planes.map(p => {
-        // Create a unique icon for this specific plane
+      {planes.map((p) => {
+        // Create the icon using the unique properties from the Plane object
         const customIcon = L.icon({
-          iconUrl: p.img_url,
-          iconSize: [p.img_size_x, p.img_size_y],
-          iconAnchor: [p.img_anch_x, p.img_anch_y],
+          iconUrl: p.img_url,      // This is the /Images/... path
+          iconSize: [p.sizex*0.1, p.sizey*0.1],
+          iconAnchor: [p.anchx*0.1, p.anchy*0.1],
         });
 
         return (
-          <Marker
-            key={p.tail}
-            position={[p.lat, p.lng]}
-            icon={customIcon} // Use the unique icon
+          <Marker 
+            key={p.tail} 
+            position={[p.lat, p.lng]} 
+            icon={customIcon}
           >
             <PlanePopup plane={p} />
           </Marker>

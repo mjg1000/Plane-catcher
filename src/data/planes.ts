@@ -49,40 +49,40 @@ export async function getLivePlanes(): Promise<Plane[]> {
       const { lat, lng } = getStartingPoint(GATWICK.lat, GATWICK.lng, distance, p.Angle);
       
       // Corrected: Absolute paths relative to the 'public' folder
-      let url = "/images/planes/737-default.png"; 
+      let url = "/Images/planes/737-default.png"; 
       let sizex = 32, sizey = 32;
       let anchx = 16, anchy = 16;
       
       console.log(p.PlaneModel)
       if (!p.PlaneModel) { // Checking PlaneModel from your DB schema
         sizex = 18; sizey = 18 * 2.1; anchx = 9; anchy = 9 * 2.1;
-        url = "/images/planes/B35.png";
+        url = "/Images/planes/B35.png";
       } else if (p.PlaneModel === "B737") {
         sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
         url = p.Airline === "TUI" 
-          ? "/images/planes/737-Tui.png" 
-          : "/images/planes/737-default.png";
+          ? "/Images/planes/737-Tui.png" 
+          : "/Images/planes/737-default.png";
 
       } else if (p.PlaneModel === "B777") {
         sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
-        if (p.Airline === "Emirates") url = "/images/planes/777-Emirates.png";
-        else if (p.Airline === "TUI") url = "/images/planes/777-Tui.png";
-        else url = "/images/planes/777-default.png";
+        if (p.Airline === "Emirates") url = "/Images/planes/777-Emirates.png";
+        else if (p.Airline === "TUI") url = "/Images/planes/777-Tui.png";
+        else url = "/Images/planes/777-default.png";
 
       } else if (p.PlaneModel === "A320") {
         sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
         url = p.Airline === "EasyJet" 
-          ? "/images/planes/A320-EasyJet.png" 
-          : "/images/planes/A320-default.png";
+          ? "/Images/planes/A320-EasyJet.png" 
+          : "/Images/planes/A320-default.png";
 
       } else if (p.PlaneModel === "A380") {
         sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
         url = p.Airline === "Emirates" 
-          ? "/images/planes/A380-Emirates.png" 
-          : "/images/planes/A380-default.png";
+          ? "/Images/planes/A380-Emirates.png" 
+          : "/Images/planes/A380-default.png";
       } else {
         sizex = 14 * 2.6; sizey = 14; anchx = 7; anchy = 7;
-        url = "/images/planes/B35.png";
+        url = "/Images/planes/SAAB.png";
       }
 
       return new Plane(
@@ -93,10 +93,10 @@ export async function getLivePlanes(): Promise<Plane[]> {
         travelTimeSeconds,
         p.Angle,
         url,
-        sizex, 
-        sizey,
-        anchx,
-        anchy
+        16, 
+        16,
+        8,
+        8
       );
     });
   } catch (error) {
